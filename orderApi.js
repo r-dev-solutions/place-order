@@ -10,8 +10,6 @@ app.use(cors());
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     writeConcern: {
         w: 'majority',
         j: true
@@ -20,19 +18,41 @@ mongoose.connect(process.env.MONGODB_URI, {
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('Could not connect to MongoDB', err));
 
+// Define the Order model
+const orderSchema = new mongoose.Schema({
+    email: String,
+    telefono: String,
+    nombre: String,
+    apellido: String,
+    direccion: String,
+    ciudad: String,
+    departamento: String,
+    metodoPago: String,
+    producto: String,
+    stock: Number,
+    talla: String,
+    precio: Number,
+    total: Number
+}, { collection: 'pedidos' });
+
+const Order = mongoose.model('Order', orderSchema);
+
 // Endpoint to retrieve all orders
 app.get('/orders', (req, res) => {
-    // Assuming you have a model named Order
+    console.log('GET /orders request received'); // Log to check if the request is received
     Order.find()
         .then(orders => res.status(200).send(orders))
-        .catch(err => res.status(500).send('Error retrieving orders'));
+        .catch(err => {
+            console.error('Error retrieving orders:', err);
+            res.status(500).send('Error retrieving orders');
+        });
 });
 
 // Endpoint to create a new order
 app.post('/orders', (req, res) => {
     const { email, telefono, nombre, apellido, direccion, ciudad, departamento, metodoPago, producto, stock, talla, precio, total } = req.body;
     
-    const newOrder = {
+    const newOrder = new Order({
         email,
         telefono,
         nombre,
@@ -46,10 +66,17 @@ app.post('/orders', (req, res) => {
         talla,
         precio,
         total
-    };
+    });
 
-    console.log('Order created:', newOrder);
-    res.status(201).send(newOrder);
+    newOrder.save()
+        .then(order => {
+            console.log('Order created:', order);
+            res.status(201).send(order);
+        })
+        .catch(err => {
+            console.error('Error creating order:', err);
+            res.status(500).send('Error creating order');
+        });
 });
 
 // Endpoint to update an order
@@ -57,7 +84,6 @@ app.put('/orders/:id', (req, res) => {
     const orderId = req.params.id;
     const updatedData = req.body;
 
-    // Assuming you have a model named Order
     Order.findByIdAndUpdate(orderId, updatedData, { new: true })
         .then(updatedOrder => {
             if (!updatedOrder) {
@@ -72,7 +98,6 @@ app.put('/orders/:id', (req, res) => {
 app.delete('/orders/:id', (req, res) => {
     const orderId = req.params.id;
 
-    // Assuming you have a model named Order
     Order.findByIdAndDelete(orderId)
         .then(deletedOrder => {
             if (!deletedOrder) {
