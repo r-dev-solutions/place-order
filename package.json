@@ -6,9 +6,9 @@
     "start": "node orderApi.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "mongoose": "^5.13.8",
     "cors": "^2.8.5",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mongoose": "^8.12.1"
   }
 }
