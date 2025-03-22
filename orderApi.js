@@ -3,10 +3,33 @@ require('dotenv').config(); // Load environment variables
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+
+// Swagger setup
+const swaggerOptions = {
+    swaggerDefinition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Order API',
+            version: '1.0.0',
+            description: 'API for managing orders'
+        },
+        servers: [
+            {
+                url: `http://localhost:${process.env.PORT || 3000}`
+            }
+        ]
+    },
+    apis: ['./orderApi.js'] // Path to the API docs
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
@@ -28,16 +51,34 @@ const orderSchema = new mongoose.Schema({
     ciudad: String,
     departamento: String,
     metodoPago: String,
-    producto: String,
-    stock: Number,
-    talla: String,
-    precio: Number,
-    total: Number
+    productos: [{
+        producto: String,
+        stock: Number,
+        talla: String,
+        precio: Number
+    }], // Ensure this field is defined as an array of objects
+    total: Number,
+    fecha: { type: Date, default: Date.now }, // Ensure this field is defined
+    estado: { type: String, default: 'Orden Procesada' } // Ensure this field is defined
 }, { collection: 'pedidos' });
 
 const Order = mongoose.model('Order', orderSchema);
 
-// Endpoint to retrieve all orders
+/**
+ * @swagger
+ * /orders:
+ *   get:
+ *     summary: Retrieve all orders
+ *     responses:
+ *       200:
+ *         description: A list of orders
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 app.get('/orders', (req, res) => {
     console.log('GET /orders request received'); // Log to check if the request is received
     Order.find()
@@ -48,10 +89,77 @@ app.get('/orders', (req, res) => {
         });
 });
 
-// Endpoint to create a new order
+/**
+ * @swagger
+ * /orders:
+ *   post:
+ *     summary: Create a new order
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               telefono:
+ *                 type: string
+ *               nombre:
+ *                 type: string
+ *               apellido:
+ *                 type: string
+ *               direccion:
+ *                 type: string
+ *               ciudad:
+ *                 type: string
+ *               departamento:
+ *                 type: string
+ *               metodoPago:
+ *                 type: string
+ *               productos:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     producto:
+ *                       type: string
+ *                     stock:
+ *                       type: number
+ *                     talla:
+ *                       type: string
+ *                     precio:
+ *                       type: number
+ *               total:
+ *                 type: number
+ *               fecha:
+ *                 type: string
+ *                 format: date-time
+ *               estado:
+ *                 type: string
+ *                 default: Orden Procesada
+ *     responses:
+ *       201:
+ *         description: Order created successfully
+ */
 app.post('/orders', (req, res) => {
-    const { email, telefono, nombre, apellido, direccion, ciudad, departamento, metodoPago, producto, stock, talla, precio, total } = req.body;
+    const { email, telefono, nombre, apellido, direccion, ciudad, departamento, metodoPago, productos, total, fecha, estado } = req.body;
     
+    console.log('Data to be saved:', {
+        email,
+        telefono,
+        nombre,
+        apellido,
+        direccion,
+        ciudad,
+        departamento,
+        metodoPago,
+        productos,
+        total,
+        fecha,
+        estado
+    });
+
     const newOrder = new Order({
         email,
         telefono,
@@ -61,17 +169,16 @@ app.post('/orders', (req, res) => {
         ciudad,
         departamento,
         metodoPago,
-        producto,
-        stock,
-        talla,
-        precio,
-        total
+        productos, // Ensure this field is included
+        total,
+        fecha, // Ensure this field is included
+        estado // Ensure this field is included
     });
 
     newOrder.save()
         .then(order => {
             console.log('Order created:', order);
-            res.status(201).send(order);
+            res.status(201).send(order); // Ensure the response includes all fields
         })
         .catch(err => {
             console.error('Error creating order:', err);
