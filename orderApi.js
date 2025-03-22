@@ -145,6 +145,21 @@ app.get('/orders', (req, res) => {
 app.post('/orders', (req, res) => {
     const { email, telefono, nombre, apellido, direccion, ciudad, departamento, metodoPago, productos, total, fecha, estado } = req.body;
     
+    console.log('Data to be saved:', {
+        email,
+        telefono,
+        nombre,
+        apellido,
+        direccion,
+        ciudad,
+        departamento,
+        metodoPago,
+        productos,
+        total,
+        fecha,
+        estado
+    });
+
     const newOrder = new Order({
         email,
         telefono,
@@ -154,10 +169,10 @@ app.post('/orders', (req, res) => {
         ciudad,
         departamento,
         metodoPago,
-        productos, // Ensure this field is included
+        productos,
         total,
-        fecha, // Ensure this field is included
-        estado // Ensure this field is included
+        fecha,
+        estado
     });
 
     newOrder.save()
