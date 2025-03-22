@@ -3,10 +3,33 @@ require('dotenv').config(); // Load environment variables
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+
+// Swagger setup
+const swaggerOptions = {
+    swaggerDefinition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Order API',
+            version: '1.0.0',
+            description: 'API for managing orders'
+        },
+        servers: [
+            {
+                url: `http://localhost:${process.env.PORT || 3000}`
+            }
+        ]
+    },
+    apis: ['./orderApi.js'] // Path to the API docs
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
@@ -28,16 +51,34 @@ const orderSchema = new mongoose.Schema({
     ciudad: String,
     departamento: String,
     metodoPago: String,
-    producto: String,
-    stock: Number,
-    talla: String,
-    precio: Number,
-    total: Number
+    productos: [{
+        producto: String,
+        stock: Number,
+        talla: String,
+        precio: Number
+    }], // Changed to array of products
+    total: Number,
+    fecha: { type: Date, default: Date.now }, // Added fecha field
+    estado: { type: String, default: 'Orden Procesada' } // Added estado field
 }, { collection: 'pedidos' });
 
 const Order = mongoose.model('Order', orderSchema);
 
-// Endpoint to retrieve all orders
+/**
+ * @swagger
+ * /orders:
+ *   get:
+ *     summary: Retrieve all orders
+ *     responses:
+ *       200:
+ *         description: A list of orders
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 app.get('/orders', (req, res) => {
     console.log('GET /orders request received'); // Log to check if the request is received
     Order.find()
@@ -48,9 +89,61 @@ app.get('/orders', (req, res) => {
         });
 });
 
-// Endpoint to create a new order
+/**
+ * @swagger
+ * /orders:
+ *   post:
+ *     summary: Create a new order
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               telefono:
+ *                 type: string
+ *               nombre:
+ *                 type: string
+ *               apellido:
+ *                 type: string
+ *               direccion:
+ *                 type: string
+ *               ciudad:
+ *                 type: string
+ *               departamento:
+ *                 type: string
+ *               metodoPago:
+ *                 type: string
+ *               productos:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     producto:
+ *                       type: string
+ *                     stock:
+ *                       type: number
+ *                     talla:
+ *                       type: string
+ *                     precio:
+ *                       type: number
+ *               total:
+ *                 type: number
+ *               fecha:
+ *                 type: string
+ *                 format: date-time
+ *               estado:
+ *                 type: string
+ *                 default: Orden Procesada
+ *     responses:
+ *       201:
+ *         description: Order created successfully
+ */
 app.post('/orders', (req, res) => {
-    const { email, telefono, nombre, apellido, direccion, ciudad, departamento, metodoPago, producto, stock, talla, precio, total } = req.body;
+    const { email, telefono, nombre, apellido, direccion, ciudad, departamento, metodoPago, productos, total, fecha } = req.body;
     
     const newOrder = new Order({
         email,
@@ -61,11 +154,9 @@ app.post('/orders', (req, res) => {
         ciudad,
         departamento,
         metodoPago,
-        producto,
-        stock,
-        talla,
-        precio,
-        total
+        productos,
+        total,
+        fecha
     });
 
     newOrder.save()

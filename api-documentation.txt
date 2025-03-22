@@ -1,0 +1,241 @@
+Order Management API
+===================
+
+This API allows you to manage orders. Below is a summary of the available endpoints:
+
+---
+
+1. **GET /orders**
+   - **Description**: Retrieve a list of all orders.
+   - **Response**:
+     - Status Code: `200`
+     - Content: A JSON array of order objects.
+     - Example Response:
+       ```json
+       [
+           {
+               "email": "customer@example.com",
+               "telefono": "1234567890",
+               "nombre": "John",
+               "apellido": "Doe",
+               "direccion": "123 Main St",
+               "ciudad": "New York",
+               "departamento": "NY",
+               "metodoPago": "Credit Card",
+               "productos": [
+                   {
+                       "producto": "T-Shirt",
+                       "stock": 10,
+                       "talla": "M",
+                       "precio": 25.99
+                   },
+                   {
+                       "producto": "Jeans",
+                       "stock": 5,
+                       "talla": "L",
+                       "precio": 40.00
+                   }
+               ],
+               "total": 259.90,
+               "fecha": "2023-10-01T12:00:00Z",
+               "estado": "Orden Procesada"
+           }
+       ]
+       ```
+
+---
+
+2. **POST /orders**
+   - **Description**: Create a new order.
+   - **Request Body**:
+     - Content-Type: `application/json`
+     - Required Fields:
+       ```json
+       {
+           "email": "string",
+           "telefono": "string",
+           "nombre": "string",
+           "apellido": "string",
+           "direccion": "string",
+           "ciudad": "string",
+           "departamento": "string",
+           "metodoPago": "string",
+           "productos": [
+               {
+                   "producto": "string",
+                   "stock": "number",
+                   "talla": "string",
+                   "precio": "number"
+               }
+           ],
+           "total": "number",
+           "fecha": "string (date-time)",
+           "estado": "string"
+       }
+       ```
+     - Example Request:
+       ```json
+       {
+           "email": "customer@example.com",
+           "telefono": "1234567890",
+           "nombre": "John",
+           "apellido": "Doe",
+           "direccion": "123 Main St",
+           "ciudad": "New York",
+           "departamento": "NY",
+           "metodoPago": "Credit Card",
+           "productos": [
+               {
+                   "producto": "T-Shirt",
+                   "stock": 10,
+                   "talla": "M",
+                   "precio": 25.99
+               },
+               {
+                   "producto": "Jeans",
+                   "stock": 5,
+                   "talla": "L",
+                   "precio": 40.00
+               }
+           ],
+           "total": 259.90,
+           "fecha": "2023-10-01T12:00:00Z",
+           "estado": "Orden Procesada"
+       }
+       ```
+   - **Response**:
+     - Status Code: `201`
+     - Content: The created order as a JSON object.
+     - Example Response:
+       ```json
+       {
+           "_id": "64f1b2c3e4b0a1b2c3d4e5f6",
+           "email": "customer@example.com",
+           "telefono": "1234567890",
+           "nombre": "John",
+           "apellido": "Doe",
+           "direccion": "123 Main St",
+           "ciudad": "New York",
+           "departamento": "NY",
+           "metodoPago": "Credit Card",
+           "productos": [
+               {
+                   "producto": "T-Shirt",
+                   "stock": 10,
+                   "talla": "M",
+                   "precio": 25.99
+               },
+               {
+                   "producto": "Jeans",
+                   "stock": 5,
+                   "talla": "L",
+                   "precio": 40.00
+               }
+           ],
+           "total": 259.90,
+           "fecha": "2023-10-01T12:00:00Z",
+           "estado": "Orden Procesada"
+       }
+       ```
+
+---
+
+3. **PUT /orders/:id**
+   - **Description**: Update an existing order by its ID.
+   - **Parameters**:
+     - `id` (string): The ID of the order to update.
+   - **Request Body**:
+     - Content-Type: `application/json`
+     - Fields to update (all fields are optional):
+       ```json
+       {
+           "email": "string",
+           "telefono": "string",
+           "nombre": "string",
+           "apellido": "string",
+           "direccion": "string",
+           "ciudad": "string",
+           "departamento": "string",
+           "metodoPago": "string",
+           "productos": [
+               {
+                   "producto": "string",
+                   "stock": "number",
+                   "talla": "string",
+                   "precio": "number"
+               }
+           ],
+           "total": "number",
+           "fecha": "string (date-time)",
+           "estado": "string"
+       }
+       ```
+     - Example Request:
+       ```json
+       {
+           "email": "updated@example.com",
+           "telefono": "0987654321",
+           "estado": "Entregado"
+       }
+       ```
+   - **Response**:
+     - Status Code: `200`
+     - Content: The updated order as a JSON object.
+     - Example Response:
+       ```json
+       {
+           "_id": "64f1b2c3e4b0a1b2c3d4e5f6",
+           "email": "updated@example.com",
+           "telefono": "0987654321",
+           "nombre": "John",
+           "apellido": "Doe",
+           "direccion": "123 Main St",
+           "ciudad": "New York",
+           "departamento": "NY",
+           "metodoPago": "Credit Card",
+           "productos": [
+               {
+                   "producto": "T-Shirt",
+                   "stock": 10,
+                   "talla": "M",
+                   "precio": 25.99
+               },
+               {
+                   "producto": "Jeans",
+                   "stock": 5,
+                   "talla": "L",
+                   "precio": 40.00
+               }
+           ],
+           "total": 259.90,
+           "fecha": "2023-10-01T12:00:00Z",
+           "estado": "Entregado"
+       }
+       ```
+
+---
+
+4. **DELETE /orders/:id**
+   - **Description**: Delete an order by its ID.
+   - **Parameters**:
+     - `id` (string): The ID of the order to delete.
+   - **Response**:
+     - Status Code: `200`
+     - Content: A success message.
+     - Example Response:
+       ```json
+       "Order deleted successfully"
+       ```
+
+---
+
+Server Information
+------------------
+- **Local Server**: http://localhost:3001 
+- **Production Server**: https://place-order-fo5k.onrender.com/orders
+
+---
+
+Notes:
+- All endpoints return a `500` status code with an error message if an internal server error occurs.
+- The `404` status code is returned if an order is not found (for `PUT` and `DELETE` endpoints).
