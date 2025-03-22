@@ -56,10 +56,10 @@ const orderSchema = new mongoose.Schema({
         stock: Number,
         talla: String,
         precio: Number
-    }], // Changed to array of products
+    }], // Ensure this field is defined as an array of objects
     total: Number,
-    fecha: { type: Date, default: Date.now }, // Added fecha field
-    estado: { type: String, default: 'Orden Procesada' } // Added estado field
+    fecha: { type: Date, default: Date.now }, // Ensure this field is defined
+    estado: { type: String, default: 'Orden Procesada' } // Ensure this field is defined
 }, { collection: 'pedidos' });
 
 const Order = mongoose.model('Order', orderSchema);
@@ -169,16 +169,16 @@ app.post('/orders', (req, res) => {
         ciudad,
         departamento,
         metodoPago,
-        productos,
+        productos, // Ensure this field is included
         total,
-        fecha,
-        estado
+        fecha, // Ensure this field is included
+        estado // Ensure this field is included
     });
 
     newOrder.save()
         .then(order => {
             console.log('Order created:', order);
-            res.status(201).send(order);
+            res.status(201).send(order); // Ensure the response includes all fields
         })
         .catch(err => {
             console.error('Error creating order:', err);
