@@ -56,10 +56,14 @@ const orderSchema = new mongoose.Schema({
         stock: Number,
         talla: String,
         precio: Number
-    }], // Ensure this field is defined as an array of objects
+    }],
     total: Number,
-    fecha: { type: Date, default: Date.now }, // Ensure this field is defined
-    estado: { type: String, default: 'Orden Procesada' } // Ensure this field is defined
+    precioEnvio: Number,
+    promoCode: String,
+    descuento: Number,
+    banco: String,
+    fecha: { type: Date, default: Date.now },
+    estado: { type: String, default: 'Orden Procesada' }
 }, { collection: 'pedidos' });
 
 const Order = mongoose.model('Order', orderSchema);
@@ -132,6 +136,14 @@ app.get('/orders', (req, res) => {
  *                       type: number
  *               total:
  *                 type: number
+ *               precioEnvio:
+ *                 type: number
+ *               promoCode:
+ *                 type: string
+ *               descuento:
+ *                 type: number
+ *               banco:
+ *                 type: string
  *               fecha:
  *                 type: string
  *                 format: date-time
@@ -143,7 +155,7 @@ app.get('/orders', (req, res) => {
  *         description: Order created successfully
  */
 app.post('/orders', (req, res) => {
-    const { email, telefono, nombre, apellido, direccion, ciudad, departamento, metodoPago, productos, total, fecha, estado } = req.body;
+    const { email, telefono, nombre, apellido, direccion, ciudad, departamento, metodoPago, productos, total, precioEnvio, promoCode, descuento, banco, fecha, estado } = req.body;
     
     console.log('Data to be saved:', {
         email,
@@ -156,6 +168,10 @@ app.post('/orders', (req, res) => {
         metodoPago,
         productos,
         total,
+        precioEnvio,
+        promoCode,
+        descuento,
+        banco,
         fecha,
         estado
     });
@@ -169,10 +185,14 @@ app.post('/orders', (req, res) => {
         ciudad,
         departamento,
         metodoPago,
-        productos, // Ensure this field is included
+        productos,
         total,
-        fecha, // Ensure this field is included
-        estado // Ensure this field is included
+        precioEnvio,
+        promoCode,
+        descuento,
+        banco,
+        fecha,
+        estado
     });
 
     newOrder.save()
