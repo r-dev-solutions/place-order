@@ -155,7 +155,7 @@ app.get('/orders', (req, res) => {
  *         description: Order created successfully
  */
 app.post('/orders', (req, res) => {
-    const { email, telefono, nombre, apellido, direccion, ciudad, departamento, metodoPago, productos, total, precioEnvio, promoCode, descuento, banco, fecha, estado } = req.body;
+    const { email, telefono, nombre, apellido, direccion, ciudad, departamento, metodoPago, productos, total, precioEnvio, promoCode, descuento, banco, fecha, estado, imagenUrl } = req.body;
     
     console.log('Data to be saved:', {
         email,
@@ -192,7 +192,8 @@ app.post('/orders', (req, res) => {
         descuento,
         banco,
         fecha,
-        estado
+        estado,
+        imagenUrl // Add the image URL to the new order
     });
 
     newOrder.save()
