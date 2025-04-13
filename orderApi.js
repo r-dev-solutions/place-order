@@ -63,7 +63,8 @@ const orderSchema = new mongoose.Schema({
     descuento: Number,
     banco: String,
     fecha: { type: Date, default: Date.now },
-    estado: { type: String, default: 'Orden Procesada' }
+    estado: { type: String, default: 'Orden Procesada' },
+    imagenUrl: String // Add the image URL field
 }, { collection: 'pedidos' });
 
 const Order = mongoose.model('Order', orderSchema);
